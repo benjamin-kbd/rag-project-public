@@ -1,0 +1,67 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from contextlib import asynccontextmanager
+
+from app.rag import run_rag
+from app.embedder import get_embeddings_batch
+from app.vectorstore import ensure_collection, upsert_documents
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ensure_collection()
+    print("✅ RAG 서버 시작")
+    yield
+
+app = FastAPI(
+    title="RAG API",
+    description="BGE-M3 + Qdrant + Groq 기반 RAG 시스템",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── 스키마 ──────────────────────────────────────────
+
+class QueryRequest(BaseModel):
+    question: str
+    top_k: int = 5
+
+class IngestRequest(BaseModel):
+    texts: list[str]
+    metadata: list[dict] | None = None
+
+# ── 엔드포인트 ──────────────────────────────────────
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "RAG API 서버가 실행 중입니다."}
+
+@app.post("/query")
+async def query(req: QueryRequest):
+    """질문에 대한 RAG 답변 반환"""
+    try:
+        result = await run_rag(req.question, top_k=req.top_k)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/ingest")
+async def ingest(req: IngestRequest):
+    """문서 텍스트를 벡터 DB에 저장"""
+    try:
+        embeddings = await get_embeddings_batch(req.texts)
+        count = upsert_documents(req.texts, embeddings, req.metadata)
+        return {"message": f"{count}개 문서가 저장되었습니다."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
