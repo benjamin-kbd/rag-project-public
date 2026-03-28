@@ -13,12 +13,11 @@ from app.vectorstore import ensure_collection, upsert_documents
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ensure_collection()
-    print("✅ RAG 서버 시작")
+    print("RAG 서버 시작")
     yield
 
 app = FastAPI(
     title="RAG API",
-    description="BGE-M3 + Qdrant + Groq 기반 RAG 시스템",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -37,6 +36,10 @@ class QueryRequest(BaseModel):
 class IngestRequest(BaseModel):
     texts: list[str]
     metadata: list[dict] | None = None
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
 
 @app.get("/")
 def root():
@@ -59,15 +62,13 @@ async def ingest(req: IngestRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
-
 @app.get("/chat")
 def chat_ui():
     return FileResponse("static/index.html")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# static 마운트는 항상 마지막에
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
