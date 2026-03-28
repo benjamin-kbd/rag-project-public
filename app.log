@@ -1,7 +1,0 @@
-INFO:     Started server process [50766]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-✅ 컬렉션 생성: rag_collection
-✅ RAG 서버 시작
-INFO:     127.0.0.1:55410 - "GET /health HTTP/1.1" 200 OK
