@@ -6,7 +6,7 @@ HEADERS = {
     "Authorization": f"Bearer {settings.HF_API_KEY}",
     "Content-Type": "application/json",
 }
-
+#question
 async def get_embedding(text: str) -> list[float]:
     async with httpx.AsyncClient(timeout=30) as client:
         response = await client.post(
@@ -20,7 +20,7 @@ async def get_embedding(text: str) -> list[float]:
     if isinstance(result, list) and isinstance(result[0], list):
         return result[0]
     return result
-
+#text file
 async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     async with httpx.AsyncClient(timeout=60) as client:
         response = await client.post(

@@ -11,20 +11,21 @@ client = QdrantClient(
     api_key=settings.QDRANT_API_KEY,
 )
 
-VECTOR_SIZE = 1024  # BGE-M3 기본 출력 차원
+VECTOR_SIZE = 1024 
 
+ # CREATE TO collection
 def ensure_collection():
-    """컬렉션이 없으면 생성"""
+    """collection"""
     existing = [c.name for c in client.get_collections().collections]
     if settings.QDRANT_COLLECTION not in existing:
         client.create_collection(
             collection_name=settings.QDRANT_COLLECTION,
             vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
         )
-        print(f"✅ 컬렉션 생성: {settings.QDRANT_COLLECTION}")
-
+ 
+  # SAVE TO documents
 def upsert_documents(texts: list[str], embeddings: list[list[float]], metadata: list[dict] = None):
-    """문서 벡터 저장"""
+    """embeddings"""
     if metadata is None:
         metadata = [{} for _ in texts]
 
@@ -40,8 +41,9 @@ def upsert_documents(texts: list[str], embeddings: list[list[float]], metadata: 
     client.upsert(collection_name=settings.QDRANT_COLLECTION, points=points)
     return len(points)
 
+  # SEARCH
 def search_similar(query_vector: list[float], top_k: int = 5) -> list[dict]:
-    """유사 문서 검색"""
+    """similar"""
     results = client.search(
         collection_name=settings.QDRANT_COLLECTION,
         query_vector=query_vector,
