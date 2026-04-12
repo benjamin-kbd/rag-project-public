@@ -14,7 +14,7 @@ from app.chunker import chunk_text
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ensure_collection()
-    print("RAG 서버 시작")
+    print("RAG start")
     yield
 
 app = FastAPI(title="RAG API", version="1.0.0", lifespan=lifespan)
@@ -40,7 +40,7 @@ def health():
 
 @app.get("/")
 def root():
-    return {"status": "ok", "message": "RAG API 서버가 실행 중입니다."}
+    return {"status": "ok", "message": "RAG API server starting"}
 
 @app.post("/query")
 async def query(req: QueryRequest):
@@ -55,23 +55,22 @@ async def ingest(req: IngestRequest):
     try:
         embeddings = await get_embeddings_batch(req.texts)
         count = upsert_documents(req.texts, embeddings, req.metadata)
-        return {"message": f"{count}개 문서가 저장되었습니다."}
+        return {"message": f"{count} to save doc"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    """PDF 또는 TXT 파일 업로드 → 청킹 → 벡터DB 저장"""
+    """PDF or TXT upload → Chunking → vector DB save"""
     try:
         filename = file.filename or "unknown"
         ext = filename.lower().split(".")[-1]
 
         if ext not in ["pdf", "txt"]:
-            raise HTTPException(status_code=400, detail="PDF 또는 TXT 파일만 지원합니다.")
+            raise HTTPException(status_code=400, detail="only pdf or text")
 
         contents = await file.read()
 
-        # 텍스트 추출
         if ext == "pdf":
             import pdfplumber, io
             text = ""
@@ -81,7 +80,6 @@ async def upload_file(file: UploadFile = File(...)):
                     if page_text:
                         text += page_text + "\n\n"
         else:
-            # TXT: 여러 인코딩 시도 (일본어 대응)
             for encoding in ["utf-8", "shift_jis", "euc_jp", "cp932"]:
                 try:
                     text = contents.decode(encoding)
@@ -89,23 +87,21 @@ async def upload_file(file: UploadFile = File(...)):
                 except UnicodeDecodeError:
                     continue
             else:
-                raise HTTPException(status_code=400, detail="파일 인코딩을 인식할 수 없습니다.")
+                raise HTTPException(status_code=400, detail="fail incoding.")
 
         if not text.strip():
-            raise HTTPException(status_code=400, detail="파일에서 텍스트를 추출할 수 없습니다.")
+            raise HTTPException(status_code=400, detail="not found text")
 
-        # 청킹
         chunks = chunk_text(text)
         if not chunks:
-            raise HTTPException(status_code=400, detail="청킹 결과가 없습니다.")
+            raise HTTPException(status_code=400, detail="not found Chunking result")
 
-        # 임베딩 + 저장
         metadata = [{"source": filename, "chunk_index": i} for i in range(len(chunks))]
         embeddings = await get_embeddings_batch(chunks)
         count = upsert_documents(chunks, embeddings, metadata)
 
         return {
-            "message": f"{filename} 업로드 완료",
+            "message": f"{filename} upload complete",
             "chunks": count,
             "text_length": len(text),
         }

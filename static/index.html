@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAG Chat</title>
+<title>RAGチャット</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f0; height: 100vh; display: flex; flex-direction: column; }
@@ -24,10 +25,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #
 #fileInput { display: none; }
 
 .upload-toast {
-    display: none; position: fixed; top: 70px; right: 20px;
-    background: white; border: 1px solid #e8e8e0; border-radius: 10px;
-    padding: 12px 16px; font-size: 13px; color: #1a1a1a;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 100; min-width: 240px;
+display: none; position: fixed; top: 70px; right: 20px;
+background: white; border: 1px solid #e8e8e0; border-radius: 10px;
+padding: 12px 16px; font-size: 13px; color: #1a1a1a;
+box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 100; min-width: 240px;
 }
 .upload-toast.show { display: block; }
 .toast-title { font-weight: 600; margin-bottom: 4px; }
@@ -76,25 +77,26 @@ textarea::placeholder { color: #aaa; }
 .chip { padding: 6px 12px; border-radius: 99px; border: 1px solid #ddd; background: white; font-size: 12px; color: #666; cursor: pointer; transition: all 0.15s; }
 .chip:hover { border-color: #1D9E75; color: #0F6E56; }
 .error-msg { color: #993C1D; }
-.success-msg { color: #0F6E56; }
-</style>
+.success-msg { color: #0F6E56; } </style>
+
 </head>
 <body>
+
 <div class="header">
   <div class="logo"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
-  <span class="header-title">RAG Chat</span>
+  <span class="header-title">RAGチャット</span>
   <div class="header-right">
     <label class="upload-btn" for="fileInput">
       <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-      문서 업로드
+      ドキュメントをアップロード
     </label>
     <input type="file" id="fileInput" accept=".pdf,.txt" multiple>
-    <span style="font-size:12px;color:#888"><span class="status-dot"></span>서버 연결됨</span>
+    <span style="font-size:12px;color:#888"><span class="status-dot"></span>接続状態：正常</span>
   </div>
 </div>
 
 <div class="upload-toast" id="uploadToast">
-  <div class="toast-title" id="toastTitle">업로드 중...</div>
+  <div class="toast-title" id="toastTitle">アップロード中...</div>
   <div id="toastMsg" style="color:#888;font-size:12px"></div>
   <div class="toast-progress"><div class="toast-bar" id="toastBar" style="width:0%"></div></div>
 </div>
@@ -104,23 +106,27 @@ textarea::placeholder { color: #aaa; }
     <div class="messages" id="messages">
       <div class="empty-state" id="empty">
         <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
-        <div class="empty-title">문서를 업로드하고 질문하세요</div>
-        <div style="font-size:13px">PDF / TXT 파일 지원 (日本語・English)</div>
+        <div class="empty-title">ドキュメントをアップロードして質問してください</div>
+        <div style="font-size:13px">PDF / TXT 対応（日本語・English）</div>
         <div class="chips">
-          <div class="chip" onclick="document.getElementById('fileInput').click()">📄 파일 업로드</div>
-          <div class="chip" onclick="setQ('이 문서의 주요 내용은?')">이 문서의 주요 내용은?</div>
+          <div class="chip" onclick="document.getElementById('fileInput').click()">📄 ファイルをアップロード</div>
+          <div class="chip" onclick="setQ('この文書の主な内容は？')">この文書の主な内容は？</div>
         </div>
       </div>
     </div>
-    <div class="input-area">
-      <div class="input-row">
-        <textarea id="input" placeholder="질문을 입력하세요... (Shift+Enter 줄바꿈)" rows="1"></textarea>
-        <button class="send-btn" id="sendBtn" onclick="sendMsg()">
-          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
-      </div>
-      <div class="hint">BGE-M3 + BGE Reranker + Llama 3.1 | PDF・TXT対応</div>
-    </div>
+
+```
+<div class="input-area">
+  <div class="input-row">
+    <textarea id="input" placeholder="質問を入力してください...（Shift+Enterで改行）" rows="1"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <div class="hint">BGE-M3 + BGE Reranker + Llama 3.1 | PDF・TXT対応</div>
+</div>
+```
+
   </div>
 </div>
 
@@ -140,10 +146,6 @@ function setQ(q) { inputEl.value = q; inputEl.focus(); }
 
 inputEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
-});
-inputEl.addEventListener('input', () => {
-  inputEl.style.height = 'auto';
-  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
 });
 
 fileInput.addEventListener('change', async (e) => {
@@ -169,30 +171,35 @@ function hideToast() {
 async function uploadFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   if (!['pdf', 'txt'].includes(ext)) {
-    showToast('오류', 'PDF 또는 TXT 파일만 지원합니다.', 0);
+    showToast('エラー', 'PDFまたはTXTファイルのみ対応しています。', 0);
     hideToast(); return;
   }
 
-  showToast(`업로드 중: ${file.name}`, '파일 처리 중...', 30);
+  showToast(`アップロード中: ${file.name}`, '処理中...', 30);
 
   const formData = new FormData();
   formData.append('file', file);
 
   try {
-    showToast(`업로드 중: ${file.name}`, '임베딩 생성 중...', 60);
     const res = await fetch(`${API_URL}/upload`, {
       method: 'POST',
       body: formData,
     });
     const data = await res.json();
+
     if (!res.ok) {
-      showToast('업로드 실패', data.detail || '오류 발생', 0);
+      showToast('アップロード失敗', data.detail || 'エラーが発生しました', 0);
     } else {
-      showToast('업로드 완료 ✓', `${data.chunks}개 청크 저장됨`, 100);
-      addMsg('bot', `<span class="success-msg">📄 <b>${file.name}</b> 업로드 완료<br>${data.chunks}개 청크로 분할되어 저장되었습니다.<br>이제 문서에 대해 질문하세요!</span>`);
+      showToast('アップロード完了', `${data.chunks}件保存`, 100);
+      addMsg('bot', `
+      <span class="success-msg">
+      📄 <b>${file.name}</b> のアップロードが完了しました<br>
+      ${data.chunks}件に分割して保存されました。<br>
+      このドキュメントについて質問できます！
+      </span>`);
     }
   } catch (e) {
-    showToast('업로드 실패', '서버 연결 오류', 0);
+    showToast('アップロード失敗', 'サーバーに接続できません', 0);
   }
   hideToast();
 }
@@ -201,63 +208,86 @@ function addMsg(role, content, sources) {
   document.getElementById('empty').style.display = 'none';
   const div = document.createElement('div');
   div.className = `msg ${role}`;
-  const initial = role === 'bot' ? 'AI' : '나';
+  const initial = role === 'bot' ? 'AI' : 'ユーザー';
+
   let sourcesHtml = '';
   if (sources && sources.length > 0) {
     const items = sources.map(s => {
       const pct = Math.round(s.score * 100);
-      const src = s.metadata && s.metadata.source ? s.metadata.source : '';
+      const src = s.metadata?.source || '';
       return `<div class="source-item">
         <div style="flex:1">
           <div>${s.text.substring(0,60)}...</div>
           ${src ? `<div class="source-file">📄 ${src}</div>` : ''}
-          <div class="score-bar" style="width:${Math.min(pct,100)}%"></div>
+          <div class="score-bar" style="width:${pct}%"></div>
         </div>
-        <span style="font-size:11px;color:#aaa;flex-shrink:0">${pct}%</span>
+        <span style="font-size:11px;color:#aaa">${pct}%</span>
       </div>`;
     }).join('');
-    sourcesHtml = `<div class="sources"><div class="sources-title">참고 문서 ${sources.length}건</div>${items}</div>`;
+
+    sourcesHtml = `<div class="sources">
+      <div class="sources-title">参照ドキュメント ${sources.length}件</div>${items}
+    </div>`;
   }
-  div.innerHTML = `<div class="avatar">${initial}</div><div><div class="bubble">${content}</div>${sourcesHtml}</div>`;
+
+  div.innerHTML = `<div class="avatar">${initial}</div>
+    <div><div class="bubble">${content}</div>${sourcesHtml}</div>`;
+
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 function addTyping() {
   const div = document.createElement('div');
-  div.className = 'msg bot'; div.id = 'typing-msg';
-  div.innerHTML = `<div class="avatar">AI</div><div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  div.className = 'msg bot';
+  div.id = 'typing-msg';
+  div.innerHTML = `<div class="avatar">AI</div>
+  <div class="bubble"><div class="typing">
+  <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div></div>`;
   messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-function removeTyping() { const t = document.getElementById('typing-msg'); if (t) t.remove(); }
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
 
 async function sendMsg() {
   const q = inputEl.value.trim();
   if (!q || isLoading) return;
-  isLoading = true; sendBtn.disabled = true;
-  inputEl.value = ''; inputEl.style.height = 'auto';
-  addMsg('user', q); addTyping();
+
+  isLoading = true;
+  sendBtn.disabled = true;
+
+  inputEl.value = '';
+  addMsg('user', q);
+  addTyping();
+
   try {
     const res = await fetch(`${API_URL}/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q, top_k: 5 })
     });
+
     const data = await res.json();
     removeTyping();
+
     if (!res.ok) {
-      addMsg('bot', `<span class="error-msg">오류: ${data.detail || '서버 오류'}</span>`);
+      addMsg('bot', `<span class="error-msg">エラー: ${data.detail || 'サーバーエラー'}</span>`);
     } else {
       addMsg('bot', data.answer, data.sources);
     }
   } catch(e) {
     removeTyping();
-    addMsg('bot', '<span class="error-msg">서버에 연결할 수 없습니다.</span>');
+    addMsg('bot', '<span class="error-msg">サーバーに接続できません。</span>');
   }
-  isLoading = false; sendBtn.disabled = false; inputEl.focus();
+
+  isLoading = false;
+  sendBtn.disabled = false;
 }
 </script>
+
 </body>
 </html>
