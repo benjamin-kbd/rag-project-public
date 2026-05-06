@@ -1,6 +1,7 @@
 # RAG チャットシステム
 
 BGE-M3 埋め込み + Qdrant ベクトルDB + BGE Reranker + Llama 3.1 ベースの RAG システム
+https://rag-project-cf8p.onrender.com/chat
 
 ---
 
